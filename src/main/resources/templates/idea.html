@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<title>Portfolio Page</title>
+	<meta property="og:title" content="Portfolio Page" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta charset="utf-8" />
+	<meta property="twitter:card" content="summary_large_image" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+	<link rel="icon" th:href="@{/images/favicon.ico}" id="favicon">
+	<link rel="apple-touch-icon" sizes="180x180" th:href="@{/images/new_idea_icon.png}">
+	<style data-tag="reset-style-sheet">
+		html {
+			line-height: 1.15;
+		}
+
+		body {
+			margin: 0;
+		}
+
+		* {
+			box-sizing: border-box;
+			border-width: 0;
+			border-style: solid;
+		}
+
+		p,
+		li,
+		ul,
+		pre,
+		div,
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6,
+		figure,
+		blockquote,
+		figcaption {
+			margin: 0;
+			padding: 0;
+		}
+
+		button {
+			background-color: transparent;
+		}
+
+		button,
+		input,
+		optgroup,
+		select,
+		textarea {
+			font-family: inherit;
+			font-size: 100%;
+			line-height: 1.15;
+			margin: 0;
+		}
+
+		button,
+		select {
+			text-transform: none;
+		}
+
+		button,
+		[type="button"],
+		[type="reset"],
+		[type="submit"] {
+			-webkit-appearance: button;
+		}
+
+		button::-moz-focus-inner,
+		[type="button"]::-moz-focus-inner,
+		[type="reset"]::-moz-focus-inner,
+		[type="submit"]::-moz-focus-inner {
+			border-style: none;
+			padding: 0;
+		}
+
+		button:-moz-focus,
+		[type="button"]:-moz-focus,
+		[type="reset"]:-moz-focus,
+		[type="submit"]:-moz-focus {
+			outline: 1px dotted ButtonText;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: inherit;
+		}
+
+		input {
+			padding: 2px 4px;
+		}
+
+		img {
+			display: block;
+		}
+
+		html {
+			scroll-behavior: smooth
+		}
+	</style>
+	<style data-tag="default-style-sheet">
+		html {
+			font-family: Arial;
+			font-size: 16px;
+		}
+
+		body {
+			font-weight: 400;
+			font-style: normal;
+			text-decoration: none;
+			text-transform: none;
+			letter-spacing: normal;
+			line-height: 1.55;
+			color: var(--dl-color-gray-black);
+			background-color: var(--dl-color-gray-white);
+
+		}
+	</style>
+	<link th:href="@{/css/style.css}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div class="container">
+		<div class="sidebar">
+			<div class="sidebar_inner">
+	
+				<div class="history">
+					<div class="new_idea">
+						<div class="new_idea_left">
+							<img th:src="@{/images/new_idea_icon.png}" width="30" height="30">
+							<p class="new_idea_text TextTyping">新しいテーマ</p>
+						</div>
+						<img th:src="@{/images/new_idea_pen_icon.svg}" width="16" height="16">
+					</div>
+					<div class="search-container">
+							<input type="text" id="search-input" placeholder="テーマを検索...">
+							<button id="search-button">検索</button>
+							<button id="reset-button">リセット</button> <!-- リセットボタンを追加 -->
+							
+						</div>
+					<div th:each="theme : ${themes}">
+						<div class="idea_titles">
+							<div class="idea_title_item" th:data-id="${theme.id}">
+								<div class="idea_title_text" th:text="${theme.title}">次世代エコ素材の開発</div>
+								<img th:src="@{/images/three_point_leader.svg}" class="three-point" width="16"
+									height="16">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="account">
+					<img th:src="@{/images/account_profile.png}" width="38" height="38">
+					<div class="account_name">Yuki Katsumata</div>
+				</div>
+			</div>
+		</div>
+		<div class="main_area">
+			<div class="main_top notes" id="message-container"></div>
+			<div class="main_bottom">
+
+				<form method="post" th:action="@{/idea}" class="message_box">
+					<input type="text" id="message-input" placeholder="アイデアを入力..." name="idea">
+					<button type="submit" id="send-button">送信</button>
+				</form>
+
+			</div>
+		</div>
+	</div>
+	<div class="center-input" id="center-input" style="display:none;">
+		<form id="theme-form">
+			<input type="text" id="theme-input" placeholder="テーマを入力してください">
+			<button type="submit">追加</button>
+		</form>
+	</div>
+	<div class="context-menu" id="context-menu">
+		<div class="context-menu__item" id="rename">名前を変更</div>
+		<div class="context-menu__item" id="archive">アーカイブ</div>
+		<div class="context-menu__item" id="delete">削除</div>
+	</div>
+	<style>
+		#message-container {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			align-items: stretch;
+			overflow-y: auto;
+			padding: 10px;
+		}
+
+		.TextTyping {
+			display: flex;
+			flex-wrap: wrap;
+			/* 追加: span要素が折り返されるようにする */
+		}
+
+		.TextTyping span {
+			position: relative;
+			display: none;
+			opacity: 0;
+			height: auto;
+		}
+
+		.idea-box span {
+			display: none;
+		}
+
+		.TextTyping::after {
+			position: relative;
+			content: "|";
+			animation: typinganime .8s ease infinite;
+			z-index: -1;
+		}
+
+		.TextTyping span.active::after {
+			content: "|";
+			animation: typinganime .8s ease infinite;
+		}
+
+		.hide-caret::after {
+			content: none;
+			/* キャレットを非表示にする */
+		}
+
+
+		.idea-box {
+			background-color: #f3eee5;
+			border-radius: 10px;
+			padding: 10px;
+			margin: 0.2rem;
+			display: block;
+			width: 300px;
+			height: 300px;
+			max-width: 300px;
+			word-break: break-all;
+			/* 長い単語を折り返す */
+			white-space: normal;
+			/* テキストの折り返しを有効にする */
+			overflow-wrap: break-word;
+			/* ボックスの幅を超えたテキストを折り返す */
+			overflow-y: scroll;
+
+		}
+
+
+		@keyframes typinganime {
+			from {
+				opacity: 0
+			}
+
+			to {
+				opacity: 1
+			}
+		}
+
+		.center-input {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: white;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			z-index: 1000;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.center-input input {
+			padding: 10px;
+			margin-bottom: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			width: 100%;
+		}
+
+		.context-menu {
+			position: absolute;
+			background-color: white;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			display: none;
+			z-index: 1001;
+			min-width: 150px;
+		}
+
+		.context-menu__item {
+			padding: 10px;
+			cursor: pointer;
+		}
+
+		.context-menu__item:hover {
+			background-color: #f1f1f1;
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+		integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+	<script th:src="@{/js/animation.js}"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			var searchInput = document.getElementById("search-input");
+			var searchButton = document.getElementById("search-button");
+			var resetButton = document.getElementById("reset-button"); // リセットボタンの要素を取得
+
+			searchButton.addEventListener("click", function () {
+				var query = searchInput.value;
+				searchThemes(query);
+			});
+
+			searchInput.addEventListener("keyup", function (event) {
+				if (event.key === "Enter") {
+					var query = searchInput.value;
+					searchThemes(query);
+				}
+			});
+
+			// リセットボタンにクリックイベントリスナーを追加
+			           resetButton.addEventListener("click", function () {
+			               window.location.href = '/themes';
+			           });
+
+			function searchThemes(query) {
+			    window.location.href = `/search?query=${encodeURIComponent(query)}`;
+			}
+
+			function displaySearchResults(themes) {
+				var history = document.querySelector(".history");
+				history.innerHTML = ""; // 既存のアイディアテーマをクリア
+
+				themes.forEach(function (theme) {
+					var newThemeElement = document.createElement("div");
+					newThemeElement.classList.add("idea_titles");
+					newThemeElement.innerHTML = `
+			                <div class="idea_title_item" data-id="${theme.id}">
+			                    <div class="idea_title_text">${theme.title}</div>
+			                    <img src="/images/three_point_leader.svg" width="16" height="16" class="three-point">
+			                </div>
+			            `;
+					history.appendChild(newThemeElement);
+				});
+			}
+
+			function resetSearchResults() {
+				fetch(`/themes`) // 全てのテーマを取得するエンドポイントを呼び出す
+					.then(response => response.json())
+					.then(data => {
+						displaySearchResults(data);
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			}
+
+
+			var form = document.getElementsByClassName("message_box")[0];
+			form.addEventListener("submit", function (e) {
+				e.preventDefault();  // デフォルトのイベントを無効にする
+				var xhr = new XMLHttpRequest();  // 新しいXMLHttpRequestインスタンスを作成
+				xhr.open("POST", form.getAttribute("action"), true);  // リクエストを開く
+
+				// リクエストヘッダを設定
+				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+				xhr.onload = function () {
+					if (xhr.status >= 200 && xhr.status < 300) {
+						// リクエスト成功時の処理
+						var notesContainer = document.querySelector(".notes");
+						// notesContainer.insertAdjacentHTML('beforeend', `<div>${xhr.responseText}</div>`);  // HTMLを追加
+						const messageText = xhr.responseText;
+						console.log(messageText)
+
+						if (messageText !== '') {
+							const messageBox = document.createElement('div');
+							messageBox.classList.add('idea-box');
+							messageBox.classList.add('TextTyping');
+
+							// テキストをspanタグで囲むための処理を追加
+							let textbox = "";
+							messageText.split('').forEach(function (t) {
+								if (t !== " ") {
+									textbox += '<span>' + t + '</span>';
+								} else {
+									textbox += t;
+								}
+							});
+							messageBox.innerHTML = textbox; // textContentではなくinnerHTMLを使用
+							messageContainer.appendChild(messageBox);
+							setTimeout(() => {
+								setVerticalPadding(messageBox); // パディングを設定
+							}, 200);
+
+							// 追加した要素に対してアニメーションを適用する
+							TextTypingAnime();
+
+						}
+
+
+
+
+
+						document.getElementById("message-input").value = "";  // 入力欄を空にする
+					} else {
+						// リクエスト失敗時の処理
+						alert("error!");
+					}
+				};
+
+				// リクエストが失敗した場合に呼び出されるイベントハンドラー
+				xhr.onerror = function () {
+					alert("error!");
+				};
+
+				// フォームデータをエンコードして送信
+				var data = JSON.stringify({idea: document.getElementById("message-input").value});
+				xhr.send(data);
+			});
+
+			var newIdea = document.querySelector(".new_idea");
+			var centerInput = document.getElementById("center-input");
+			var themeForm = document.getElementById("theme-form");
+
+			newIdea.addEventListener("click", function () {
+				centerInput.style.display = "flex";
+			});
+
+			themeForm.addEventListener("submit", function (e) {
+				e.preventDefault();  // デフォルトのイベントを無効にする
+				var theme = document.getElementById("theme-input").value;
+				if (theme.trim() !== "") {
+					addNewIdeaTheme(theme);
+					console.log(theme);
+
+					// フォaームをリセットして入力フィールドを隠す
+					themeForm.reset();
+					centerInput.style.display = "none";
+				}
+			});
+
+
+
+
+
+			// 初期化関数を呼び出す
+			initializeNewIdeaForm();
+			initializeContextMenu();
+
+
+			// 親要素にイベントリスナーを追加
+			document.body.addEventListener("click", function (e) {
+				if (e.target.classList.contains("three-point")) {
+					console.log("test");
+					e.stopPropagation(); // イベントのバブリングを停止
+					var targetElement = e.target.closest('.idea_title_item');
+					showContextMenu(e, targetElement);
+				}
+			});
+
+
+			// コンテキストメニューを非表示にするコード
+			document.addEventListener("click", function (e) {
+				var contextMenu = document.getElementById("context-menu");
+				if (!contextMenu.contains(e.target) && !e.target.classList.contains("three-point")) {
+					contextMenu.style.display = "none";
+				}
+			});
+		});
+
+		const messageInput = document.getElementById('message-input');
+		const sendButton = document.getElementById('send-button');
+		const messageContainer = document.getElementById('message-container');
+
+
+		function initializeNewIdeaForm() {
+
+		}
+
+		function addNewIdeaTheme(theme) {
+			fetch('/themes', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({title: theme, description: ''})
+			})
+				.then(response => response.json())
+				.then(data => {
+					console.log('追加しました。');
+					var newThemeElement = document.createElement("div");
+					newThemeElement.classList.add("idea_titles");
+					// 新しいアイディアテーマの要素を作成
+					newThemeElement.innerHTML = `
+					            <div class="idea_title_item" data-id="${data.id}">
+					                <div class="idea_title_text">${data.title}</div>
+					                <img src="/images/three_point_leader.svg" width="16" height="16" class="three-point">
+					            </div> 	
+					        `;
+					document.querySelector(".history").appendChild(newThemeElement);
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert("新しいテーマの追加に失敗しました");
+				});
+		}
+
+
+		function initializeContextMenu() {
+			var contextMenu = document.getElementById("context-menu");
+
+			document.addEventListener("click", function (e) {
+				if (!contextMenu.contains(e.target)) {
+					contextMenu.style.display = "none";
+				}
+			});
+
+
+			document.getElementById("rename").addEventListener("click", function () {
+				alert("名前を変更");
+				contextMenu.style.display = "none";
+			});
+
+			document.getElementById("archive").addEventListener("click", function () {
+				alert("アーカイブ");
+				contextMenu.style.display = "none";
+			});
+
+			document.getElementById("delete").addEventListener("click", function () {
+				var themeElement = contextMenu.relatedTarget;
+				console.log(themeElement);
+				if (themeElement) {
+					var themeId = themeElement.dataset.id;
+					deleteIdeaTheme(themeId, themeElement);
+				}
+				contextMenu.style.display = "none";
+				console.log("削除ボタン押されました");
+			});
+
+		}
+
+		function showContextMenu(event, targetElement) {
+			var contextMenu = document.getElementById("context-menu");
+			contextMenu.style.top = `${event.clientY}px`;
+			contextMenu.style.left = `${event.clientX}px`;
+			contextMenu.style.display = "block";
+			contextMenu.relatedTarget = targetElement; // targetElementを関連付ける
+			event.stopPropagation(); // イベントのバブリングを停止
+		}
+
+
+		function deleteIdeaTheme(id, element) {
+			fetch(`/themes/${id}`, {
+				method: 'DELETE'
+			})
+				.then(response => {
+					if (response.ok) {
+						element.remove();
+					} else {
+						alert("削除に失敗しました");
+					}
+				})
+				.catch(error => {
+					alert("エラーが発生しました");
+					console.error('Error:', error);
+				});
+		}
+
+
+
+	</script>
+</body>
+
+</html>

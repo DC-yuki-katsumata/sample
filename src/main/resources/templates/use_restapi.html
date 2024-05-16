@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        h2 {
+            color: #555;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        pre {
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        // GETリクエストを送信する関数
+        async function getWeather() {
+            const location = document.getElementById('location').value;
+            const response = await fetch(`/checkWeather/${location}`);
+            const data = await response.json();
+            document.getElementById('getResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // POSTリクエストを送信する関数
+        async function postWeather() {
+            const publishingOffice = document.getElementById('publishingOffice').value;
+            const reportDatetime = document.getElementById('reportDatetime').value;
+            const targetArea = document.getElementById('targetArea').value;
+            const headlineText = document.getElementById('headlineText').value;
+            const text = document.getElementById('text').value;
+
+            const weatherReport = {
+                publishingOffice,
+                reportDatetime,
+                targetArea,
+                headlineText,
+                text
+            };
+
+            const response = await fetch('/weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(weatherReport)
+            });
+
+            const data = await response.json();
+            document.getElementById('postResult').textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather Report API</h1>
+
+        <!-- GETリクエスト用フォーム -->
+        <h2>GET Weather Report</h2>
+        <input type="text" id="location" placeholder="Location">
+        <button onclick="getWeather()">Get Weather</button>
+        <pre id="getResult"></pre>
+
+        <!-- POSTリクエスト用フォーム -->
+        <h2>POST Weather Report</h2>
+        <input type="text" id="publishingOffice" placeholder="Publishing Office"><br>
+        <input type="text" id="reportDatetime" placeholder="Report Datetime"><br>
+        <input type="text" id="targetArea" placeholder="Target Area"><br>
+        <input type="text" id="headlineText" placeholder="Headline Text"><br>
+        <textarea id="text" placeholder="Text"></textarea><br>
+        <button onclick="postWeather()">Post Weather</button>
+        <pre id="postResult"></pre>
+    </div>
+</body>
+</html>

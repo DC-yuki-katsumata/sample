@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>私のスプリングブートアプリ</title>
+</head>
+<div style="padding: 23px 30px; display: flex; justify-content: space-between;">
+	<div class="box">
+		<h1 th:text="${morning}"></h1>
+		<h1 th:text="${afternoon}"></h1>
+		<h1 th:text="${night}"></h1>
+	</div>
+	<img th:src="@{yosemite.jpg}" width="500">
+</div>
+
+<a th:href="@{/sample}">サンプルページへのリンク</a>
+
+<div th:object="${person}" style="padding: 30px;">
+	<p th:text="'名前は' + ${name} + 'です'"></p>
+	<p th:text="'年齢は' + ${age} + '才です'"></p>
+</div>
+
+<div th:object="${persons}" style="padding: 30px;">
+	<p th:text="'名前は' + ${name} + 'です'"></p>
+	<p th:text="'年齢は' + ${age} + '才です'"></p>
+</div>
+
+<h1 th:text="${message}"></h1>
+<h1	th:text="${title}"></h1>
+<form method="get" th:action="@{/sample1_result}">
+<p>パラメータA：<input type="text" name="paramA"></p>
+<p>パラメータB：<input type="text" name="paramB"></p>
+<p>パラメータC：<input type="text" name="paramC"></p>
+<input type="submit" value="送信">
+</form>
+<style>
+	body {
+		background-color: rgb(192, 192, 192);
+	}
+	h1 {
+		margin: 0;
+	}
+
+	a {
+		font-weight: bold;
+		color: #7b9aff;
+	}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.0/gsap.min.js"></script>
+<script>
+	gsap.fromTo(
+	  ".box", // アニメーションさせる要素
+	  {
+	    autoAlpha: 0, // アニメーション開始前は透明
+	  },
+	  {
+	    autoAlpha: 1, // アニメーション後は出現(透過率0)
+	    scrollTrigger: {
+	      trigger: ".box", // アニメーションが始まるトリガーとなる要素
+	      start: "top center", // アニメーションの開始位置
+	    },
+	  }
+	);
+</script>
+</body>
+
+</html>
